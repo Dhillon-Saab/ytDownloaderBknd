@@ -4,6 +4,7 @@ import subprocess
 import os
 from time import sleep
 import re
+import uvicorn
 
 app = FastAPI()
 
@@ -53,13 +54,13 @@ async def download_video(url: str):
         return Response(status_code=404, content="File not found")
 
 
-@app.get("/download_file")
-async def download_file():
-    file_path = "C:/pythonProjects/test.txt"
-    file_name = "test.txt"
-    response = Response(content=open(file_path, "rb").read(), media_type="application/octet-stream")
-    response.headers["Content-Disposition"] = f"attachment; filename={file_name}"
-    return response
+# @app.get("/download_file")
+# async def download_file():
+#     file_path = "C:/pythonProjects/test.txt"
+#     file_name = "test.txt"
+#     response = Response(content=open(file_path, "rb").read(), media_type="application/octet-stream")
+#     response.headers["Content-Disposition"] = f"attachment; filename={file_name}"
+#     return response
 
 
 @app.get("/try_video")
@@ -67,3 +68,7 @@ async def download_video(video_id: str):
     yt_dlp_cmd = f"yt-dlp -f best -o - https://www.youtube.com/watch?v={video_id}"
     process = subprocess.Popen(yt_dlp_cmd, shell=True, stdout=subprocess.PIPE)
     return StreamingResponse(process.stdout, media_type="video/mp4")
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
